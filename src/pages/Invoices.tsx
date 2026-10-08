@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useStore } from '../lib/store';
-import { Dock, Empty, Icon, Money, Seg, StateBadge } from '../components/ui';
+import { Empty, Icon, Money, Seg, StateBadge } from '../components/ui';
 import { invoiceState, paidFor } from '../lib/calc';
 import { fmtDate, invoiceTypeLabel, money } from '../lib/format';
 
@@ -66,7 +66,6 @@ export default function Invoices() {
           })}
         </div>
       )}
-      <Dock />
     </div>
   );
 }

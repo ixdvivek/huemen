@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../lib/store';
-import { Avatar, Dock, Empty, Field, Icon, Sheet, useBusy } from '../components/ui';
+import { Avatar, Empty, Field, Icon, Sheet, useBusy } from '../components/ui';
 import { initials } from '../lib/format';
 import type { Client } from '../lib/types';
 
@@ -36,7 +36,6 @@ export default function Clients() {
           })}
         </div>
       )}
-      <Dock onAdd={() => setEdit('new')} addLabel="Add client" />
       {edit && <ClientForm client={edit === 'new' ? undefined : edit} onClose={() => setEdit(null)} />}
     </div>
   );

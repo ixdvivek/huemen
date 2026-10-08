@@ -66,11 +66,27 @@ export default function InvoiceView() {
   ];
 
   return (
-    <div className="app" style={{ paddingBottom: 160, gap: 14 }}>
+    <div className="app" style={{ gap: 14 }}>
       <TopBar title={invoice.number} right={<Menu items={menu} />} />
       <div className="row" style={{ justifyContent: 'center', gap: 8 }}>
         <StateBadge state={state} />
         <span className="xs muted">{state === 'draft' ? 'Sharing marks it as sent' : project.title}</span>
+      </div>
+
+      <div className="stack" style={{ gap: 10 }}>
+        <div className="grid2">
+          <button className="btn btn-light" disabled={!!sharing} onClick={() => share('img')}>
+            <Icon name="image" size={16} /> {sharing === 'img' ? 'Preparing…' : 'Share image'}
+          </button>
+          <button className="btn btn-light" disabled={!!sharing} onClick={() => share('pdf')}>
+            <Icon name="pdf" size={16} /> {sharing === 'pdf' ? 'Preparing…' : 'Share PDF'}
+          </button>
+        </div>
+        {state !== 'paid' && state !== 'void' && (
+          <button className="btn btn-dark btn-block" onClick={() => setPaying(true)}>
+            <Icon name="check" size={16} /> Record payment
+          </button>
+        )}
       </div>
 
       <div style={{ margin: '0 -12px' }}>
@@ -103,24 +119,6 @@ export default function InvoiceView() {
           </div>
         </div>
       )}
-
-      <div className="action-bar">
-        <div style={{ flexDirection: 'column' }}>
-          <div className="row" style={{ gap: 10 }}>
-            <button className="btn btn-light grow" disabled={!!sharing} onClick={() => share('img')}>
-              <Icon name="image" size={16} /> {sharing === 'img' ? 'Preparing…' : 'Share image'}
-            </button>
-            <button className="btn btn-light grow" disabled={!!sharing} onClick={() => share('pdf')}>
-              <Icon name="pdf" size={16} /> {sharing === 'pdf' ? 'Preparing…' : 'Share PDF'}
-            </button>
-          </div>
-          {state !== 'paid' && state !== 'void' && (
-            <button className="btn btn-dark" onClick={() => setPaying(true)}>
-              <Icon name="check" size={16} /> Record payment
-            </button>
-          )}
-        </div>
-      </div>
 
       {paying && <PaymentForm invoices={[invoice]} onClose={() => setPaying(false)} />}
     </div>

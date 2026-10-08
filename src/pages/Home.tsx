@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../lib/store';
-import { Avatar, Dock, Empty, Icon, Money, Progress, Seg } from '../components/ui';
+import { Avatar, Empty, Icon, Money, Progress, Seg } from '../components/ui';
 import { paidFor, invoiceState, pct, projectSummary } from '../lib/calc';
 import { initials, today } from '../lib/format';
 import type { Currency } from '../lib/types';
@@ -165,7 +165,6 @@ export default function Home() {
         })}
       </div>
 
-      <Dock onAdd={() => setAdding(true)} addLabel="New project" />
       {adding && <ProjectForm onClose={() => setAdding(false)} onSaved={(p) => nav(`/projects/${p.id}`)} />}
     </div>
   );

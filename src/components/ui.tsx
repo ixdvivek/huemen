@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../lib/store';
 import { money } from '../lib/format';
 import { stateLabel, type InvoiceState } from '../lib/calc';
@@ -101,25 +101,6 @@ export function TopBar({ title, right, back }: { title?: string; right?: ReactNo
       </button>
       <div className="page-title grow ellipsis">{title}</div>
       <div style={{ minWidth: 44, display: 'flex', justifyContent: 'flex-end' }}>{right}</div>
-    </div>
-  );
-}
-
-export function Dock({ onAdd, addLabel }: { onAdd?: () => void; addLabel?: string }) {
-  return (
-    <div className="dock">
-      <div className="dock-inner">
-        <nav className="nav" aria-label="Main">
-          <NavLink to="/" end>Home</NavLink>
-          <NavLink to="/clients">Clients</NavLink>
-          <NavLink to="/invoices">Invoices</NavLink>
-        </nav>
-        {onAdd && (
-          <button className="fab" aria-label={addLabel ?? 'Add'} onClick={onAdd}>
-            <Icon name="plus" size={22} stroke={2.2} />
-          </button>
-        )}
-      </div>
     </div>
   );
 }

@@ -11,10 +11,13 @@ import ProjectPage from './pages/ProjectPage';
 import InvoiceEditor from './pages/InvoiceEditor';
 import InvoiceView from './pages/InvoiceView';
 import ReceiptView from './pages/ReceiptView';
+import AppDock from './components/AppDock';
 
 function ScrollTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
@@ -50,6 +53,7 @@ function Shell() {
         <Route path="/receipts/:id" element={<ReceiptView />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <AppDock />
       <Toast />
     </>
   );
@@ -59,8 +63,12 @@ export default function App() {
   const [user, setUser] = useState<{ email: string } | null | undefined>(undefined);
 
   useEffect(() => {
-    backend.getSession().then(setUser);
-    return backend.onAuthChange(setUser);
+    // Only re-render when the signed-in account actually changes (token refreshes fire this too).
+    const apply = (u: { email: string } | null) =>
+      setUser((prev) => (prev && u && prev.email === u.email ? prev : u));
+    backend.getSession().then(apply);
+    // Defer: Supabase recommends not doing work inside the auth callback itself.
+    return backend.onAuthChange((u) => setTimeout(() => apply(u), 0));
   }, []);
 
   if (user === undefined)

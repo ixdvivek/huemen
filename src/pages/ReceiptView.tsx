@@ -44,7 +44,7 @@ export default function ReceiptView() {
   };
 
   return (
-    <div className="app" style={{ paddingBottom: 110, gap: 14 }}>
+    <div className="app" style={{ gap: 14 }}>
       <TopBar
         title={`Receipt ${payment.number}`}
         right={
@@ -57,18 +57,16 @@ export default function ReceiptView() {
           />
         }
       />
+      <div className="grid2">
+        <button className="btn btn-dark" disabled={!!sharing} onClick={() => share('img')}>
+          <Icon name="image" size={16} /> {sharing === 'img' ? 'Preparing…' : 'Share image'}
+        </button>
+        <button className="btn btn-light" disabled={!!sharing} onClick={() => share('pdf')}>
+          <Icon name="pdf" size={16} /> {sharing === 'pdf' ? 'Preparing…' : 'Share PDF'}
+        </button>
+      </div>
       <div style={{ margin: '0 -12px' }}>
         <ReceiptDoc ref={ref} payment={payment} invoice={invoice} project={project} client={client} settings={s.settings} payments={s.payments} />
-      </div>
-      <div className="action-bar">
-        <div>
-          <button className="btn btn-dark" disabled={!!sharing} onClick={() => share('img')}>
-            <Icon name="image" size={16} /> {sharing === 'img' ? 'Preparing…' : 'Share image'}
-          </button>
-          <button className="btn btn-light" disabled={!!sharing} onClick={() => share('pdf')}>
-            <Icon name="pdf" size={16} /> {sharing === 'pdf' ? 'Preparing…' : 'Share PDF'}
-          </button>
-        </div>
       </div>
     </div>
   );

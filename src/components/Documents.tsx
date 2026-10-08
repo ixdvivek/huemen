@@ -29,7 +29,10 @@ function BigAmount({ v, c }: { v: number; c: Project['currency'] }) {
 function useQr(text: string | null) {
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {
-    if (!text) return setSrc(null);
+    if (!text) {
+      setSrc(null);
+      return;
+    }
     QRCode.toDataURL(text, { margin: 0, width: 288, errorCorrectionLevel: 'M', color: { dark: '#18181B', light: '#FFFFFF' } }).then(setSrc, () => setSrc(null));
   }, [text]);
   return src;
