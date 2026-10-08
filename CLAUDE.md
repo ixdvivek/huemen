@@ -22,6 +22,9 @@ Every table has `user_id default auth.uid()` and an "owner only" RLS policy. Sch
 - The store (`src/lib/store.tsx`) loads everything once, keeps it in memory, caches a snapshot in localStorage for offline viewing, and refreshes when the tab regains focus.
 - Shareable documents are `src/components/Documents.tsx` — keep them self-contained (no external images/fonts) so PNG export stays reliable.
 
+## Backups
+`.github/workflows/backup.yml`: daily keep-alive query + weekly encrypted `pg_dump` of the public schema stored as a 90-day artifact. Needs repo secrets `SUPABASE_DB_URL` (session pooler string) and `BACKUP_PASSPHRASE`. Details and restore steps: `supabase/BACKUPS.md`. Never print secrets or upload unencrypted dumps — the repo is public.
+
 ## Working on it
 - `npm run demo` → runs with sample data in localStorage, no login or network (use this for UI work and screenshots).
 - `npm run dev` → real Supabase.

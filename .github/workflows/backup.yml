@@ -1,0 +1,74 @@
+name: Database backup
+
+# Daily: a tiny query so Supabase sees activity (free projects pause after a quiet week).
+# Weekly (Sunday) or on demand: full encrypted backup, kept as a workflow artifact for 90 days.
+on:
+  schedule:
+    - cron: '17 2 * * *' # every day 02:17 UTC
+  workflow_dispatch:
+    inputs:
+      backup:
+        description: 'Take a full backup now'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check secrets are set
+        run: |
+          if [ -z "$DB_URL" ] || [ -z "$PASSPHRASE" ]; then
+            echo "::error::Add SUPABASE_DB_URL and BACKUP_PASSPHRASE under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Install Postgres 17 client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common >/dev/null
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
+          sudo apt-get install -y -qq postgresql-client-17 >/dev/null
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: Keep-alive query
+        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -At -c "select 'projects: ' || count(*) from public.projects;"
+
+      - name: Decide whether to back up
+        id: when
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.backup }}" = "true" ]; then echo "run=true" >> "$GITHUB_OUTPUT";
+          elif [ "$(date -u +%u)" = "7" ]; then echo "run=true" >> "$GITHUB_OUTPUT";
+          else echo "run=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Dump and encrypt
+        if: steps.when.outputs.run == 'true'
+        run: |
+          STAMP=$(date -u +%Y-%m-%d)
+          echo "STAMP=$STAMP" >> "$GITHUB_ENV"
+          mkdir -p out
+          # Everything in the public schema: tables, policies and all your data.
+          pg_dump "$DB_URL" --schema=public --no-owner --no-privileges --format=plain --file=huemen.sql
+          # Row counts, so you can see at a glance what the backup holds.
+          psql "$DB_URL" -At -c "select 'clients',count(*) from public.clients union all select 'projects',count(*) from public.projects union all select 'invoices',count(*) from public.invoices union all select 'payments',count(*) from public.payments" > counts.txt
+          cat counts.txt
+          tar czf huemen.tgz huemen.sql counts.txt
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$PASSPHRASE" --symmetric --cipher-algo AES256 \
+            --output "out/huemen-backup-$STAMP.tgz.gpg" huemen.tgz
+          rm -f huemen.sql huemen.tgz counts.txt
+          ls -la out
+
+      - name: Store encrypted backup
+        if: steps.when.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: huemen-backup-${{ env.STAMP }}
+          path: out/*.gpg
+          retention-days: 90
+          if-no-files-found: error
