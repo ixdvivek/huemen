@@ -4,7 +4,17 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 async function renderPng(node: HTMLElement, pixelRatio: number) {
   await document.fonts.ready;
-  const opts = { pixelRatio, cacheBust: true, backgroundColor: '#F3F2EF' };
+  // The card is centred with `margin: auto` on wide screens. html-to-image copies that
+  // margin onto the clone, which pushes the content right and crops it — so zero it
+  // and pin the exact size.
+  const opts = {
+    pixelRatio,
+    cacheBust: true,
+    backgroundColor: '#F3F2EF',
+    width: node.offsetWidth,
+    height: node.offsetHeight,
+    style: { margin: '0', transform: 'none' },
+  };
   // Safari sometimes drops images/fonts on the first pass — render twice.
   if (isSafari) await toPng(node, opts);
   return toPng(node, opts);
