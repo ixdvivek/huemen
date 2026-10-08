@@ -38,7 +38,8 @@ jobs:
           echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
 
       - name: Keep-alive query
-        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -At -c "select 'projects: ' || count(*) from public.projects;"
+        run: |
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -At -c "select 'projects: ' || count(*) from public.projects;"
 
       - name: Decide whether to back up
         id: when
